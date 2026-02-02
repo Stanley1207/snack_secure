@@ -1,0 +1,233 @@
+{
+  "app": {
+    "title": "SnackSecure",
+    "subtitle": "FDA Compliance Checker for Snack Exports",
+    "description": "Verify if your snack products meet FDA requirements for export to the US market"
+  },
+  "nav": {
+    "home": "Home",
+    "assessment": "New Assessment",
+    "dashboard": "My Dashboard",
+    "login": "Login",
+    "register": "Register",
+    "logout": "Logout"
+  },
+  "home": {
+    "welcome": "Welcome to SnackSecure",
+    "intro": "Your comprehensive FDA compliance verification tool for snack product exports to the United States.",
+    "startAssessment": "Start New Assessment",
+    "viewDashboard": "View Dashboard",
+    "features": {
+      "title": "What We Check",
+      "labeling": "Labeling Requirements",
+      "labelingDesc": "Nutrition Facts, ingredient lists, allergen declarations, and more",
+      "facility": "Facility Registration",
+      "facilityDesc": "FDA facility registration, Prior Notice, and foreign supplier verification",
+      "safety": "Food Safety Standards",
+      "safetyDesc": "HACCP, FSMA Preventive Controls, and GMP compliance"
+    }
+  },
+  "auth": {
+    "login": "Login",
+    "register": "Register",
+    "email": "Email",
+    "password": "Password",
+    "confirmPassword": "Confirm Password",
+    "name": "Full Name",
+    "company": "Company Name",
+    "loginButton": "Sign In",
+    "registerButton": "Create Account",
+    "noAccount": "Don't have an account?",
+    "hasAccount": "Already have an account?",
+    "loginSuccess": "Login successful",
+    "registerSuccess": "Registration successful",
+    "logoutSuccess": "Logged out successfully"
+  },
+  "assessment": {
+    "title": "FDA Compliance Assessment",
+    "selectCategory": "Select Product Category",
+    "categories": {
+      "chips": "Chips & Crisps",
+      "cookies": "Cookies & Biscuits",
+      "candy": "Candy & Confectionery",
+      "nuts": "Nuts & Seeds",
+      "dried_fruits": "Dried Fruits",
+      "crackers": "Crackers",
+      "popcorn": "Popcorn",
+      "other": "Other Snacks"
+    },
+    "sections": {
+      "labeling": "Labeling Requirements",
+      "facility": "Facility Registration",
+      "safety": "Food Safety Standards"
+    },
+    "progress": "Progress",
+    "next": "Next",
+    "previous": "Previous",
+    "submit": "Submit Assessment",
+    "saving": "Saving...",
+    "saveSuccess": "Assessment saved successfully",
+    "uploadImage": "Upload Image",
+    "analyzeWithAI": "Analyze with AI",
+    "analyzing": "Analyzing..."
+  },
+  "assessmentMode": {
+    "title": "Choose Assessment Method",
+    "description": "Select how you'd like to complete your FDA compliance assessment.",
+    "upload": {
+      "title": "Upload Image",
+      "description": "Upload a photo of your product packaging. Our AI will analyze it and pre-fill the labeling requirements for you.",
+      "badge": "AI-Powered"
+    },
+    "manual": {
+      "title": "Manual Input",
+      "description": "Answer each compliance question manually. Ideal if you don't have a product image available.",
+      "badge": "Traditional"
+    }
+  },
+  "imageUpload": {
+    "title": "Upload Product Packaging",
+    "description": "Upload a clear photo of your snack product's packaging. Include the Nutrition Facts panel and ingredient list if possible.",
+    "clickToUpload": "Click to upload",
+    "orDragDrop": "or drag and drop",
+    "supportedFormats": "JPEG, PNG, WebP, or GIF (max 10MB)",
+    "invalidType": "Invalid file type. Please upload a JPEG, PNG, WebP, or GIF image.",
+    "tooLarge": "File is too large. Maximum size is 10MB.",
+    "preview": "Image preview"
+  },
+  "aiAnalysis": {
+    "title": "AI Analysis Results",
+    "description": "Review and adjust the AI's analysis of your product packaging. You can modify any answers before proceeding.",
+    "overallNotes": "AI Summary",
+    "aiObservation": "AI Observation",
+    "aiSuggested": "AI suggested",
+    "confidence": {
+      "high": "High Confidence",
+      "medium": "Medium Confidence",
+      "low": "Low Confidence"
+    },
+    "analyzing": "Analyzing your image...",
+    "analysisFailed": "Analysis failed. Please try again or use manual input."
+  },
+  "questions": {
+    "labeling": {
+      "nutritionFacts": {
+        "question": "Does your product have a compliant Nutrition Facts panel?",
+        "help": "Must include serving size, calories, nutrients per FDA format"
+      },
+      "ingredientList": {
+        "question": "Is the ingredient list in descending order by weight?",
+        "help": "Ingredients must be listed from most to least by weight"
+      },
+      "allergenDeclaration": {
+        "question": "Does the label declare all Big 9 allergens if present?",
+        "help": "Milk, eggs, fish, shellfish, tree nuts, peanuts, wheat, soybeans, sesame"
+      },
+      "netQuantity": {
+        "question": "Is the net quantity statement displayed correctly?",
+        "help": "Must show both metric and US customary units"
+      },
+      "manufacturerInfo": {
+        "question": "Is manufacturer/distributor information included?",
+        "help": "Name and address of manufacturer, packer, or distributor"
+      },
+      "countryOfOrigin": {
+        "question": "Is the country of origin clearly marked?",
+        "help": "Required for imported food products"
+      }
+    },
+    "facility": {
+      "fdaRegistration": {
+        "question": "Is your facility registered with the FDA?",
+        "help": "Foreign facilities must register with FDA before exporting to US"
+      },
+      "priorNotice": {
+        "question": "Do you submit Prior Notice for each shipment?",
+        "help": "Required before food arrives at US port of entry"
+      },
+      "fsvp": {
+        "question": "Is there a Foreign Supplier Verification Program in place?",
+        "help": "US importers must verify foreign suppliers meet FDA standards"
+      }
+    },
+    "safety": {
+      "haccp": {
+        "question": "Do you have a HACCP plan (if applicable)?",
+        "help": "Hazard Analysis Critical Control Points plan"
+      },
+      "fsma": {
+        "question": "Are you compliant with FSMA Preventive Controls?",
+        "help": "Food Safety Modernization Act requirements"
+      },
+      "gmp": {
+        "question": "Do you follow Good Manufacturing Practices?",
+        "help": "21 CFR Part 117 requirements"
+      },
+      "hazardAnalysis": {
+        "question": "Is hazard analysis documentation available?",
+        "help": "Documentation of identified hazards and preventive controls"
+      }
+    }
+  },
+  "answers": {
+    "yes": "Yes",
+    "no": "No",
+    "partial": "Partially",
+    "notApplicable": "Not Applicable"
+  },
+  "results": {
+    "title": "Assessment Results",
+    "overallStatus": "Overall Compliance Status",
+    "passed": "Passed",
+    "failed": "Needs Attention",
+    "partial": "Partially Compliant",
+    "score": "Compliance Score",
+    "category": "Category",
+    "status": "Status",
+    "recommendations": "Recommendations",
+    "noRecommendations": "No recommendations - all requirements met!",
+    "saveResults": "Save Results",
+    "printReport": "Print Report",
+    "newAssessment": "Start New Assessment",
+    "viewDetails": "View Details"
+  },
+  "recommendations": {
+    "nutritionFacts": "Update your Nutrition Facts panel to meet FDA format requirements. Consider using FDA's labeling guide.",
+    "ingredientList": "Reorder your ingredient list to show ingredients from most to least by weight.",
+    "allergenDeclaration": "Review your product for Big 9 allergens and ensure proper declaration on the label.",
+    "netQuantity": "Add net quantity in both metric (g, ml) and US customary (oz, fl oz) units.",
+    "manufacturerInfo": "Include complete manufacturer/distributor name and address on the label.",
+    "countryOfOrigin": "Add 'Product of [Country]' or 'Made in [Country]' to your label.",
+    "fdaRegistration": "Register your facility with FDA through the FDA Industry Systems (FIS).",
+    "priorNotice": "Set up Prior Notice submission process through FDA's Prior Notice System Interface.",
+    "fsvp": "Work with your US importer to establish a Foreign Supplier Verification Program.",
+    "haccp": "Develop a HACCP plan identifying critical control points for your production process.",
+    "fsma": "Review FSMA Preventive Controls requirements and implement necessary controls.",
+    "gmp": "Implement Good Manufacturing Practices per 21 CFR Part 117.",
+    "hazardAnalysis": "Document all identified hazards and corresponding preventive controls."
+  },
+  "dashboard": {
+    "title": "My Dashboard",
+    "recentAssessments": "Recent Assessments",
+    "noAssessments": "No assessments yet. Start your first assessment!",
+    "date": "Date",
+    "product": "Product Category",
+    "score": "Score",
+    "status": "Status",
+    "actions": "Actions",
+    "view": "View",
+    "delete": "Delete",
+    "confirmDelete": "Are you sure you want to delete this assessment?"
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "retry": "Retry",
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "back": "Back",
+    "continue": "Continue"
+  }
+}

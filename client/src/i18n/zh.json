@@ -1,0 +1,233 @@
+{
+  "app": {
+    "title": "SnackSecure",
+    "subtitle": "零食出口FDA合规检查器",
+    "description": "验证您的零食产品是否符合FDA对美国市场出口的要求"
+  },
+  "nav": {
+    "home": "首页",
+    "assessment": "新建评估",
+    "dashboard": "我的仪表盘",
+    "login": "登录",
+    "register": "注册",
+    "logout": "退出登录"
+  },
+  "home": {
+    "welcome": "欢迎使用 SnackSecure",
+    "intro": "您的零食产品出口美国的综合FDA合规验证工具。",
+    "startAssessment": "开始新评估",
+    "viewDashboard": "查看仪表盘",
+    "features": {
+      "title": "我们检查的内容",
+      "labeling": "标签要求",
+      "labelingDesc": "营养成分表、配料表、过敏原声明等",
+      "facility": "设施注册",
+      "facilityDesc": "FDA设施注册、预先通知、外国供应商验证",
+      "safety": "食品安全标准",
+      "safetyDesc": "HACCP、FSMA预防控制、GMP合规性"
+    }
+  },
+  "auth": {
+    "login": "登录",
+    "register": "注册",
+    "email": "电子邮箱",
+    "password": "密码",
+    "confirmPassword": "确认密码",
+    "name": "姓名",
+    "company": "公司名称",
+    "loginButton": "登录",
+    "registerButton": "创建账户",
+    "noAccount": "还没有账户？",
+    "hasAccount": "已有账户？",
+    "loginSuccess": "登录成功",
+    "registerSuccess": "注册成功",
+    "logoutSuccess": "已退出登录"
+  },
+  "assessment": {
+    "title": "FDA合规评估",
+    "selectCategory": "选择产品类别",
+    "categories": {
+      "chips": "薯片",
+      "cookies": "饼干",
+      "candy": "糖果",
+      "nuts": "坚果",
+      "dried_fruits": "果干",
+      "crackers": "苏打饼干",
+      "popcorn": "爆米花",
+      "other": "其他零食"
+    },
+    "sections": {
+      "labeling": "标签要求",
+      "facility": "设施注册",
+      "safety": "食品安全标准"
+    },
+    "progress": "进度",
+    "next": "下一步",
+    "previous": "上一步",
+    "submit": "提交评估",
+    "saving": "保存中...",
+    "saveSuccess": "评估保存成功",
+    "uploadImage": "上传图片",
+    "analyzeWithAI": "AI分析",
+    "analyzing": "分析中..."
+  },
+  "assessmentMode": {
+    "title": "选择评估方式",
+    "description": "选择您希望如何完成FDA合规评估。",
+    "upload": {
+      "title": "上传图片",
+      "description": "上传您产品包装的照片。我们的AI将分析图片并自动填写标签要求。",
+      "badge": "AI智能分析"
+    },
+    "manual": {
+      "title": "手动输入",
+      "description": "手动回答每个合规问题。适用于没有产品图片的情况。",
+      "badge": "传统方式"
+    }
+  },
+  "imageUpload": {
+    "title": "上传产品包装",
+    "description": "上传清晰的零食产品包装照片。如果可能，请包含营养成分表和配料表。",
+    "clickToUpload": "点击上传",
+    "orDragDrop": "或拖放文件",
+    "supportedFormats": "JPEG、PNG、WebP 或 GIF（最大10MB）",
+    "invalidType": "文件类型无效。请上传 JPEG、PNG、WebP 或 GIF 图片。",
+    "tooLarge": "文件过大。最大允许10MB。",
+    "preview": "图片预览"
+  },
+  "aiAnalysis": {
+    "title": "AI分析结果",
+    "description": "查看并调整AI对您产品包装的分析结果。您可以在继续之前修改任何答案。",
+    "overallNotes": "AI总结",
+    "aiObservation": "AI观察",
+    "aiSuggested": "AI建议",
+    "confidence": {
+      "high": "高置信度",
+      "medium": "中置信度",
+      "low": "低置信度"
+    },
+    "analyzing": "正在分析您的图片...",
+    "analysisFailed": "分析失败。请重试或使用手动输入。"
+  },
+  "questions": {
+    "labeling": {
+      "nutritionFacts": {
+        "question": "您的产品是否有符合要求的营养成分表？",
+        "help": "必须包含份量大小、卡路里、营养素（按FDA格式）"
+      },
+      "ingredientList": {
+        "question": "配料表是否按重量降序排列？",
+        "help": "配料必须从最多到最少按重量列出"
+      },
+      "allergenDeclaration": {
+        "question": "标签是否声明了所有存在的9大过敏原？",
+        "help": "牛奶、鸡蛋、鱼、贝类、坚果、花生、小麦、大豆、芝麻"
+      },
+      "netQuantity": {
+        "question": "净含量标注是否正确显示？",
+        "help": "必须同时显示公制和美制单位"
+      },
+      "manufacturerInfo": {
+        "question": "是否包含制造商/分销商信息？",
+        "help": "制造商、包装商或分销商的名称和地址"
+      },
+      "countryOfOrigin": {
+        "question": "原产国是否清晰标注？",
+        "help": "进口食品必须标注"
+      }
+    },
+    "facility": {
+      "fdaRegistration": {
+        "question": "您的设施是否已在FDA注册？",
+        "help": "外国设施必须在向美国出口前在FDA注册"
+      },
+      "priorNotice": {
+        "question": "您是否为每批货物提交预先通知？",
+        "help": "在食品到达美国入境口岸之前必须提交"
+      },
+      "fsvp": {
+        "question": "是否有外国供应商验证计划？",
+        "help": "美国进口商必须验证外国供应商符合FDA标准"
+      }
+    },
+    "safety": {
+      "haccp": {
+        "question": "您是否有HACCP计划（如适用）？",
+        "help": "危害分析关键控制点计划"
+      },
+      "fsma": {
+        "question": "您是否符合FSMA预防控制要求？",
+        "help": "食品安全现代化法案要求"
+      },
+      "gmp": {
+        "question": "您是否遵循良好生产规范？",
+        "help": "21 CFR第117部分要求"
+      },
+      "hazardAnalysis": {
+        "question": "是否有危害分析文档？",
+        "help": "已识别危害和预防控制措施的文档"
+      }
+    }
+  },
+  "answers": {
+    "yes": "是",
+    "no": "否",
+    "partial": "部分",
+    "notApplicable": "不适用"
+  },
+  "results": {
+    "title": "评估结果",
+    "overallStatus": "总体合规状态",
+    "passed": "通过",
+    "failed": "需要关注",
+    "partial": "部分合规",
+    "score": "合规得分",
+    "category": "类别",
+    "status": "状态",
+    "recommendations": "建议",
+    "noRecommendations": "无建议 - 所有要求均已满足！",
+    "saveResults": "保存结果",
+    "printReport": "打印报告",
+    "newAssessment": "开始新评估",
+    "viewDetails": "查看详情"
+  },
+  "recommendations": {
+    "nutritionFacts": "更新您的营养成分表以符合FDA格式要求。建议参考FDA标签指南。",
+    "ingredientList": "重新排列配料表，按重量从多到少排序。",
+    "allergenDeclaration": "检查您的产品是否含有9大过敏原，并确保在标签上正确声明。",
+    "netQuantity": "添加公制（克、毫升）和美制（盎司、液体盎司）两种单位的净含量。",
+    "manufacturerInfo": "在标签上包含完整的制造商/分销商名称和地址。",
+    "countryOfOrigin": "在标签上添加\"产地：[国家]\"或\"[国家]制造\"。",
+    "fdaRegistration": "通过FDA行业系统（FIS）注册您的设施。",
+    "priorNotice": "通过FDA预先通知系统界面设置预先通知提交流程。",
+    "fsvp": "与您的美国进口商合作建立外国供应商验证计划。",
+    "haccp": "制定HACCP计划，识别生产过程中的关键控制点。",
+    "fsma": "审查FSMA预防控制要求并实施必要的控制措施。",
+    "gmp": "按照21 CFR第117部分实施良好生产规范。",
+    "hazardAnalysis": "记录所有已识别的危害和相应的预防控制措施。"
+  },
+  "dashboard": {
+    "title": "我的仪表盘",
+    "recentAssessments": "最近的评估",
+    "noAssessments": "暂无评估。开始您的第一次评估！",
+    "date": "日期",
+    "product": "产品类别",
+    "score": "得分",
+    "status": "状态",
+    "actions": "操作",
+    "view": "查看",
+    "delete": "删除",
+    "confirmDelete": "确定要删除此评估吗？"
+  },
+  "common": {
+    "loading": "加载中...",
+    "error": "发生错误",
+    "retry": "重试",
+    "cancel": "取消",
+    "save": "保存",
+    "delete": "删除",
+    "edit": "编辑",
+    "back": "返回",
+    "continue": "继续"
+  }
+}
