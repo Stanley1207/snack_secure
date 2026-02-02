@@ -1,6 +1,6 @@
 import express from 'express'
 import multer from 'multer'
-import Anthropic from '@anthropic-ai/sdk'
+import { GoogleGenerativeAI } from '@google/generative-ai'
 
 const router = express.Router()
 
@@ -17,16 +17,6 @@ const upload = multer({
     }
   }
 })
-
-const getMediaType = (mimetype: string): 'image/jpeg' | 'image/png' | 'image/webp' | 'image/gif' => {
-  const typeMap: Record<string, 'image/jpeg' | 'image/png' | 'image/webp' | 'image/gif'> = {
-    'image/jpeg': 'image/jpeg',
-    'image/png': 'image/png',
-    'image/webp': 'image/webp',
-    'image/gif': 'image/gif'
-  }
-  return typeMap[mimetype] || 'image/jpeg'
-}
 
 const buildPrompt = (language: string) => {
   const languageNote = language === 'zh'
@@ -96,49 +86,39 @@ router.post('/analyze-packaging', upload.single('image'), async (req, res) => {
       return res.status(400).json({ success: false, error: 'No image uploaded' })
     }
 
-    const apiKey = process.env.ANTHROPIC_API_KEY
+    const apiKey = process.env.GOOGLE_GEMINI_API_KEY
     if (!apiKey) {
       return res.status(500).json({ success: false, error: 'AI service not configured' })
     }
 
     const language = (req.body.language as string) || 'en'
     const imageBase64 = req.file.buffer.toString('base64')
-    const mediaType = getMediaType(req.file.mimetype)
 
-    const client = new Anthropic({ apiKey })
+    const genAI = new GoogleGenerativeAI(apiKey)
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' })
 
-    const response = await client.messages.create({
-      model: 'claude-sonnet-4-20250514',
-      max_tokens: 1500,
-      messages: [
-        {
-          role: 'user',
-          content: [
-            {
-              type: 'image',
-              source: {
-                type: 'base64',
-                media_type: mediaType,
-                data: imageBase64
-              }
-            },
-            {
-              type: 'text',
-              text: buildPrompt(language)
-            }
-          ]
-        }
-      ]
-    })
+    const imagePart = {
+      inlineData: {
+        data: imageBase64,
+        mimeType: req.file.mimetype
+      }
+    }
 
-    const textContent = response.content.find(c => c.type === 'text')
-    if (!textContent || textContent.type !== 'text') {
+    const result = await model.generateContent([
+      buildPrompt(language),
+      imagePart
+    ])
+
+    const response = result.response
+    const textContent = response.text()
+
+    if (!textContent) {
       return res.status(500).json({ success: false, error: 'Invalid AI response' })
     }
 
     let analysis: AnalysisResponse
     try {
-      const jsonMatch = textContent.text.match(/\{[\s\S]*\}/)
+      const jsonMatch = textContent.match(/\{[\s\S]*\}/)
       if (!jsonMatch) {
         throw new Error('No JSON found in response')
       }

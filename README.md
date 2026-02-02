@@ -4,7 +4,7 @@ A web application that helps snack food exporters verify their products meet FDA
 
 ## Features
 
-- **AI-Powered Image Analysis** - Upload product packaging images for automatic FDA compliance detection using Claude AI vision
+- **AI-Powered Image Analysis** - Upload product packaging images for automatic FDA compliance detection using Google Gemini AI vision
 - **Manual Assessment** - Complete detailed compliance questionnaires across labeling, facility, and safety categories
 - **Bilingual Support** - Full English and Simplified Chinese interface
 - **User Dashboard** - Track assessment history and compliance status
@@ -24,7 +24,7 @@ A web application that helps snack food exporters verify their products meet FDA
 **Backend:**
 - Express.js with TypeScript
 - SQLite (better-sqlite3)
-- Anthropic Claude API (AI vision analysis)
+- Google Gemini API (AI vision analysis)
 - JWT authentication
 - bcryptjs (password hashing)
 - Multer (file uploads)
@@ -83,7 +83,7 @@ snackSecure/
    ```
    PORT=3001
    JWT_SECRET=your_secure_jwt_secret_here
-   ANTHROPIC_API_KEY=your_anthropic_api_key_here
+   GOOGLE_GEMINI_API_KEY=your_google_gemini_api_key_here
    ```
 
 ### Environment Variables
@@ -92,7 +92,7 @@ snackSecure/
 |----------|-------------|----------|
 | `PORT` | Server port (default: 3001) | No |
 | `JWT_SECRET` | Secret key for JWT signing | Yes |
-| `ANTHROPIC_API_KEY` | Anthropic API key for Claude AI | Yes |
+| `GOOGLE_GEMINI_API_KEY` | Google API key for Gemini AI ([get one here](https://aistudio.google.com/apikey)) | Yes |
 
 ## Development
 
@@ -119,6 +119,59 @@ npm run dev:server    # Backend only
 npm run build
 npm start
 ```
+
+## Deployment
+
+SnackSecure can be deployed to hosting platforms like Railway or Render for public access.
+
+### Quick Deploy to Railway (Recommended)
+
+1. **Push to GitHub:**
+   ```bash
+   git init
+   git add .
+   git commit -m "Initial commit"
+   git remote add origin https://github.com/YOUR_USERNAME/snacksecure.git
+   git push -u origin main
+   ```
+
+2. **Deploy on Railway:**
+   - Go to [Railway](https://railway.app)
+   - Click "New Project" → "Deploy from GitHub repo"
+   - Select your repository
+   - Add environment variables in the Variables tab:
+     - `NODE_ENV=production`
+     - `JWT_SECRET=<generate-secure-secret>`
+     - `GOOGLE_GEMINI_API_KEY=<your-api-key>`
+   - Railway auto-deploys and provides a public URL
+
+3. **Generate JWT Secret:**
+   ```bash
+   node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+   ```
+
+### Detailed Deployment Instructions
+
+See the following files for complete deployment guides:
+- **[DEPLOYMENT.md](./DEPLOYMENT.md)** - Full deployment guide for Railway and Render
+- **[DEPLOYMENT_CHECKLIST.md](./DEPLOYMENT_CHECKLIST.md)** - Step-by-step checklist
+- **[test-production.sh](./test-production.sh)** - Test production build locally
+
+### Production Features
+
+When deployed in production mode, the server:
+- Serves the built React frontend from a single URL
+- Uses optimized CORS settings for same-origin requests
+- Serves all API routes under `/api`
+- Handles SPA routing with fallback to `index.html`
+
+### Test Production Build Locally
+
+```bash
+./test-production.sh
+```
+
+Then visit `http://localhost:3001` to test the unified deployment.
 
 ## API Endpoints
 

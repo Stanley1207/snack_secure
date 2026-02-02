@@ -60,7 +60,8 @@ router.get('/', (req: AuthRequest, res: Response) => {
 
 router.get('/:id', (req: AuthRequest, res: Response) => {
   try {
-    const assessmentId = parseInt(req.params.id)
+    const idParam = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id
+    const assessmentId = parseInt(idParam)
     const assessment = assessmentModel.findById(assessmentId)
 
     if (!assessment) {
@@ -88,7 +89,8 @@ router.get('/:id', (req: AuthRequest, res: Response) => {
 
 router.delete('/:id', (req: AuthRequest, res: Response) => {
   try {
-    const assessmentId = parseInt(req.params.id)
+    const idParam = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id
+    const assessmentId = parseInt(idParam)
     const userId = req.userId!
 
     const deleted = assessmentModel.delete(assessmentId, userId)

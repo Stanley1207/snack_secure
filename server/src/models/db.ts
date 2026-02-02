@@ -6,7 +6,7 @@ const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 
 const dbPath = join(__dirname, '../../database.sqlite')
-const db = new Database(dbPath)
+const db: Database.Database = new Database(dbPath)
 
 db.exec(`
   CREATE TABLE IF NOT EXISTS users (
