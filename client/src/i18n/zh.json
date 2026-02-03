@@ -64,7 +64,19 @@
     "sections": {
       "labeling": "标签要求",
       "facility": "设施注册",
-      "safety": "食品安全标准"
+      "safety": "食品安全标准",
+      "usda": "USDA肉类合规",
+      "coldChain": "冷链管理",
+      "shelfLife": "保质期管理"
+    },
+    "meatInquiry": {
+      "title": "产品成分确认",
+      "description": "此产品类别可能含有肉类成分。含肉产品需要额外的USDA（美国农业部）批准。",
+      "warning": "含肉产品需要获得USDA批准（除FDA外），这可能需要额外的认证流程。",
+      "yes": "是，此产品含有肉类成分",
+      "yesDesc": "需要USDA批准和额外的肉类进口认证",
+      "no": "否，此产品不含肉类",
+      "noDesc": "仅需要FDA合规"
     },
     "progress": "进度",
     "next": "下一步",
@@ -252,6 +264,48 @@
         "question": "是否有危害分析文档？",
         "help": "已识别危害和预防控制措施的文档"
       }
+    },
+    "usda": {
+      "facilityInspection": {
+        "question": "您的设施是否通过USDA检验认证？",
+        "help": "含肉产品需要USDA认证的设施进行生产"
+      },
+      "meatLabeling": {
+        "question": "肉类成分是否按USDA要求标注？",
+        "help": "肉类产品标签需符合USDA FSIS标签要求"
+      },
+      "importPermit": {
+        "question": "是否持有USDA肉类进口许可证？",
+        "help": "进口肉类产品需要FSIS批准的进口许可"
+      }
+    },
+    "coldChain": {
+      "temperatureMonitoring": {
+        "question": "是否有温度监控记录系统？",
+        "help": "需要记录从生产到运输的全程温度"
+      },
+      "transport": {
+        "question": "运输是否符合冷链要求？",
+        "help": "需要使用冷藏/冷冻运输并保持温度一致"
+      },
+      "storageLabel": {
+        "question": "包装是否标注存储温度要求？",
+        "help": "需清晰标注建议存储温度范围"
+      }
+    },
+    "shelfLife": {
+      "expirationDate": {
+        "question": "是否清晰标注生产日期和保质期？",
+        "help": "需在包装上显示生产日期和最佳食用日期"
+      },
+      "storageConditions": {
+        "question": "是否标注存储条件说明？",
+        "help": "如'常温存储'、'冷藏保存'等说明"
+      },
+      "batchTraceability": {
+        "question": "是否有批次追溯系统？",
+        "help": "需要能够追溯每批产品的生产信息"
+      }
     }
   },
   "answers": {
@@ -271,10 +325,36 @@
     "status": "状态",
     "recommendations": "建议",
     "noRecommendations": "无建议 - 所有要求均已满足！",
+    "itemsNeedAttention": "{{count}} 项需要关注。请查看上方各项的具体建议。",
     "saveResults": "保存结果",
     "printReport": "打印报告",
     "newAssessment": "开始新评估",
-    "viewDetails": "查看详情"
+    "viewDetails": "查看详情",
+    "usdaWarning": "此产品含肉类成分，除FDA外还需要获得USDA（美国农业部）批准",
+    "coldChainWarning": "此产品需要冷链运输和存储，请确保全程温度控制",
+    "missingItems": {
+      "title": "缺失的合规项",
+      "description": "以下 {{count}} 项合规要求未满足，需要在产品出口前完成："
+    },
+    "aiSummary": {
+      "title": "AI 合规改进建议",
+      "generate": "生成 AI 总结",
+      "regenerate": "重新生成",
+      "priorityActions": "优先行动项",
+      "detailedSteps": "详细改进步骤",
+      "estimatedEffort": "预估工作量",
+      "loading": "生成中...",
+      "analyzing": "AI 正在分析您的评估结果...",
+      "error": "AI 总结生成失败，请重试"
+    },
+    "cta": {
+      "failedTitle": "需要帮助完成合规？",
+      "failedDescription": "我们的专业团队可以帮助您完成所有合规要求",
+      "failedButton": "让我们帮您完成",
+      "passedTitle": "恭喜！您的产品已准备就绪",
+      "passedDescription": "立即开始在美国市场销售您的产品",
+      "passedButton": "上传您的产品"
+    }
   },
   "recommendations": {
     "nutritionFacts": "更新您的营养成分表以符合FDA格式要求。建议参考FDA标签指南。",
@@ -289,7 +369,16 @@
     "haccp": "制定HACCP计划，识别生产过程中的关键控制点。",
     "fsma": "审查FSMA预防控制要求并实施必要的控制措施。",
     "gmp": "按照21 CFR第117部分实施良好生产规范。",
-    "hazardAnalysis": "记录所有已识别的危害和相应的预防控制措施。"
+    "hazardAnalysis": "记录所有已识别的危害和相应的预防控制措施。",
+    "usdaFacilityInspection": "联系USDA FSIS申请设施检验认证，这是肉类产品出口的必要条件。",
+    "usdaMeatLabeling": "确保肉类成分按USDA FSIS标签要求正确标注，包括产品名称、成分和净重。",
+    "usdaImportPermit": "通过USDA FSIS申请肉类进口许可证，需要提供原产国的兽医证书。",
+    "temperatureMonitoring": "建立温度监控和记录系统，确保从生产到运输全程温度可追溯。",
+    "coldChainTransport": "使用符合冷链要求的运输设备，并与物流商签订温度保障协议。",
+    "storageTemperatureLabel": "在包装上清晰标注存储温度要求，如'请冷藏于2-8°C'。",
+    "expirationDate": "在包装显著位置标注生产日期和保质期，格式需符合美国市场习惯。",
+    "storageConditions": "在标签上添加存储条件说明，如'开封后请冷藏并在X天内食用'。",
+    "batchTraceability": "建立批次追溯系统，确保每批产品可追溯到原料来源和生产记录。"
   },
   "dashboard": {
     "title": "我的仪表盘",

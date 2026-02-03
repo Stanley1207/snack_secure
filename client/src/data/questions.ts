@@ -1,15 +1,45 @@
+export type SectionId = 'labeling' | 'facility' | 'safety' | 'usda' | 'coldChain' | 'shelfLife'
+
 export interface Question {
   id: string
-  section: 'labeling' | 'facility' | 'safety'
+  section: SectionId
   questionKey: string
   helpKey: string
   weight: number
 }
 
 export interface Section {
-  id: 'labeling' | 'facility' | 'safety'
+  id: SectionId
   titleKey: string
   questions: Question[]
+}
+
+// Categories that automatically require USDA (definitely contain meat)
+export const autoUsdaCategories = ['jerky', 'frozen_meat']
+
+// Categories that need to ask if they contain meat
+export const meatInquiryCategories = ['canned_food', 'ready_meals', 'self_heating', 'frozen_dumplings']
+
+// Categories that require cold chain management
+export const coldChainCategories = {
+  mainCategories: ['dairy', 'frozen'],
+  subCategories: ['jelly_pudding', 'cake']
+}
+
+// Helper function to check if a subcategory automatically requires USDA
+export function requiresUSDA(subCategory: string): boolean {
+  return autoUsdaCategories.includes(subCategory)
+}
+
+// Helper function to check if a subcategory needs meat inquiry
+export function needsMeatInquiry(subCategory: string): boolean {
+  return meatInquiryCategories.includes(subCategory)
+}
+
+// Helper function to check if a category requires cold chain
+export function requiresColdChain(mainCategory: string, subCategory: string): boolean {
+  return coldChainCategories.mainCategories.includes(mainCategory) ||
+         coldChainCategories.subCategories.includes(subCategory)
 }
 
 // Legacy product categories for backward compatibility
@@ -208,7 +238,8 @@ export function formatCategoryForStorage(
   return mainCategory
 }
 
-export const sections: Section[] = [
+// Base sections (always shown)
+export const baseSections: Section[] = [
   {
     id: 'labeling',
     titleKey: 'assessment.sections.labeling',
@@ -320,14 +351,137 @@ export const sections: Section[] = [
   }
 ]
 
+// USDA section (for meat products)
+export const usdaSection: Section = {
+  id: 'usda',
+  titleKey: 'assessment.sections.usda',
+  questions: [
+    {
+      id: 'usdaFacilityInspection',
+      section: 'usda',
+      questionKey: 'questions.usda.facilityInspection.question',
+      helpKey: 'questions.usda.facilityInspection.help',
+      weight: 25
+    },
+    {
+      id: 'usdaMeatLabeling',
+      section: 'usda',
+      questionKey: 'questions.usda.meatLabeling.question',
+      helpKey: 'questions.usda.meatLabeling.help',
+      weight: 20
+    },
+    {
+      id: 'usdaImportPermit',
+      section: 'usda',
+      questionKey: 'questions.usda.importPermit.question',
+      helpKey: 'questions.usda.importPermit.help',
+      weight: 25
+    }
+  ]
+}
+
+// Cold chain section (for refrigerated/frozen products)
+export const coldChainSection: Section = {
+  id: 'coldChain',
+  titleKey: 'assessment.sections.coldChain',
+  questions: [
+    {
+      id: 'temperatureMonitoring',
+      section: 'coldChain',
+      questionKey: 'questions.coldChain.temperatureMonitoring.question',
+      helpKey: 'questions.coldChain.temperatureMonitoring.help',
+      weight: 20
+    },
+    {
+      id: 'coldChainTransport',
+      section: 'coldChain',
+      questionKey: 'questions.coldChain.transport.question',
+      helpKey: 'questions.coldChain.transport.help',
+      weight: 20
+    },
+    {
+      id: 'storageTemperatureLabel',
+      section: 'coldChain',
+      questionKey: 'questions.coldChain.storageLabel.question',
+      helpKey: 'questions.coldChain.storageLabel.help',
+      weight: 15
+    }
+  ]
+}
+
+// Shelf life section (for all products)
+export const shelfLifeSection: Section = {
+  id: 'shelfLife',
+  titleKey: 'assessment.sections.shelfLife',
+  questions: [
+    {
+      id: 'expirationDate',
+      section: 'shelfLife',
+      questionKey: 'questions.shelfLife.expirationDate.question',
+      helpKey: 'questions.shelfLife.expirationDate.help',
+      weight: 15
+    },
+    {
+      id: 'storageConditions',
+      section: 'shelfLife',
+      questionKey: 'questions.shelfLife.storageConditions.question',
+      helpKey: 'questions.shelfLife.storageConditions.help',
+      weight: 10
+    },
+    {
+      id: 'batchTraceability',
+      section: 'shelfLife',
+      questionKey: 'questions.shelfLife.batchTraceability.question',
+      helpKey: 'questions.shelfLife.batchTraceability.help',
+      weight: 15
+    }
+  ]
+}
+
+// Legacy export for backward compatibility (base sections only)
+export const sections: Section[] = baseSections
+
+// Get all sections including conditional ones based on product type
+export function getAllSections(
+  mainCategory: string,
+  subCategory: string,
+  containsMeat: boolean | null
+): Section[] {
+  const allSections = [...baseSections]
+
+  // Add USDA section if meat product
+  if (requiresUSDA(subCategory) || containsMeat === true) {
+    allSections.push(usdaSection)
+  }
+
+  // Add cold chain section if refrigerated/frozen
+  if (requiresColdChain(mainCategory, subCategory)) {
+    allSections.push(coldChainSection)
+  }
+
+  // Always add shelf life section
+  allSections.push(shelfLifeSection)
+
+  return allSections
+}
+
+// Get all questions from specified sections
+export function getQuestionsForSections(sectionList: Section[]): Question[] {
+  return sectionList.flatMap(section => section.questions)
+}
+
 export const answerOptions = ['yes', 'no', 'partial', 'notApplicable'] as const
 export type AnswerOption = typeof answerOptions[number]
 
-export function calculateScore(answers: Record<string, string>): number {
+export function calculateScore(
+  answers: Record<string, string>,
+  sectionList?: Section[]
+): number {
+  const sectionsToUse = sectionList || sections
   let totalWeight = 0
   let earnedWeight = 0
 
-  sections.forEach(section => {
+  sectionsToUse.forEach(section => {
     section.questions.forEach(question => {
       const answer = answers[question.id]
       if (answer === 'notApplicable') return
@@ -351,11 +505,19 @@ export function getOverallStatus(score: number): 'passed' | 'failed' | 'partial'
   return 'failed'
 }
 
+// All available sections including conditional ones
+const allAvailableSections: Section[] = [
+  ...baseSections,
+  usdaSection,
+  coldChainSection,
+  shelfLifeSection
+]
+
 export function getSectionStatus(
   sectionId: string,
   answers: Record<string, string>
 ): 'passed' | 'failed' | 'partial' {
-  const section = sections.find(s => s.id === sectionId)
+  const section = allAvailableSections.find(s => s.id === sectionId)
   if (!section) return 'failed'
 
   let totalWeight = 0
@@ -381,8 +543,9 @@ export function getSectionStatus(
   return 'failed'
 }
 
-export function getAllQuestions(): Question[] {
-  return sections.flatMap(section => section.questions)
+export function getAllQuestions(sectionList?: Section[]): Question[] {
+  const sectionsToUse = sectionList || sections
+  return sectionsToUse.flatMap(section => section.questions)
 }
 
 export function getTotalQuestionCount(): number {

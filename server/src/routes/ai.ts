@@ -154,4 +154,118 @@ router.post('/analyze-packaging', upload.single('image'), async (req, res) => {
   }
 })
 
+// Summarize assessment results endpoint
+interface SummarizeRequest {
+  productCategory: string
+  failedItems: string[]
+  answers: Record<string, string>
+  language: string
+  score: number
+}
+
+interface PriorityAction {
+  item: string
+  priority: 'high' | 'medium' | 'low'
+  action: string
+}
+
+interface SummaryResponse {
+  overview: string
+  priorityActions: PriorityAction[]
+  detailedSteps: string[]
+  estimatedEffort: string
+}
+
+const buildSummaryPrompt = (
+  productCategory: string,
+  failedItems: string[],
+  score: number,
+  language: string
+) => {
+  const languageInstruction = language === 'zh'
+    ? '请用中文回复。'
+    : 'Please respond in English.'
+
+  return `You are an FDA food compliance expert. Based on the following assessment results, provide personalized compliance improvement suggestions.
+
+Product Category: ${productCategory}
+Assessment Score: ${score}%
+Failed Compliance Items:
+${failedItems.map((item, i) => `${i + 1}. ${item}`).join('\n')}
+
+Please provide:
+1. Overview (2-3 sentences summarizing the compliance status)
+2. Priority Actions (sorted by importance, mark priority as high/medium/low)
+3. Detailed Improvement Steps
+4. Estimated effort to complete these improvements
+
+${languageInstruction}
+
+Respond ONLY with valid JSON in this exact format:
+{
+  "overview": "Brief overall assessment...",
+  "priorityActions": [
+    {
+      "item": "Item name",
+      "priority": "high|medium|low",
+      "action": "Specific action to take"
+    }
+  ],
+  "detailedSteps": [
+    "Step 1...",
+    "Step 2..."
+  ],
+  "estimatedEffort": "Estimated time/effort description"
+}`
+}
+
+router.post('/summarize-results', async (req, res) => {
+  try {
+    const { productCategory, failedItems, language, score } = req.body as SummarizeRequest
+
+    if (!failedItems || failedItems.length === 0) {
+      return res.status(400).json({ success: false, error: 'No failed items to summarize' })
+    }
+
+    const apiKey = process.env.GOOGLE_GEMINI_API_KEY
+    if (!apiKey) {
+      return res.status(500).json({ success: false, error: 'AI service not configured' })
+    }
+
+    const genAI = new GoogleGenerativeAI(apiKey)
+    const model = genAI.getGenerativeModel({ model: 'gemini-3-flash-preview' })
+
+    const prompt = buildSummaryPrompt(productCategory, failedItems, score, language || 'en')
+    const result = await model.generateContent(prompt)
+    const response = result.response
+    const textContent = response.text()
+
+    if (!textContent) {
+      return res.status(500).json({ success: false, error: 'Invalid AI response' })
+    }
+
+    let summary: SummaryResponse
+    try {
+      const jsonMatch = textContent.match(/\{[\s\S]*\}/)
+      if (!jsonMatch) {
+        throw new Error('No JSON found in response')
+      }
+      summary = JSON.parse(jsonMatch[0])
+    } catch {
+      return res.status(500).json({ success: false, error: 'Failed to parse AI response' })
+    }
+
+    res.json({
+      success: true,
+      summary
+    })
+  } catch (error) {
+    console.error('AI summarize error:', error)
+    res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : 'Summary generation failed'
+    })
+  }
+})
+
 export default router

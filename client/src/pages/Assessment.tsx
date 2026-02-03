@@ -9,16 +9,24 @@ import AssessmentModeSelector, { AssessmentMode } from '../components/Assessment
 import ImageUpload from '../components/ImageUpload'
 import AIAnalysisResults from '../components/AIAnalysisResults'
 import {
-  sections,
+  baseSections,
   foodCategories,
   answerOptions,
   calculateScore,
   getOverallStatus,
   formatCategoryForStorage,
-  MainCategory
+  MainCategory,
+  requiresUSDA,
+  needsMeatInquiry,
+  requiresColdChain,
+  getAllSections,
+  usdaSection,
+  coldChainSection,
+  shelfLifeSection,
+  SectionId
 } from '../data/questions'
 
-type Step = 'mode' | 'category' | 'upload' | 'labeling' | 'facility' | 'safety' | 'review'
+type Step = 'mode' | 'category' | 'meatInquiry' | 'upload' | 'labeling' | 'facility' | 'safety' | 'usda' | 'coldChain' | 'shelfLife' | 'review'
 
 interface AIAnalysis {
   answers: Record<string, string>
@@ -40,6 +48,9 @@ export default function Assessment() {
   const [selectedSubCategory, setSelectedSubCategory] = useState<string>('')
   const [customCategory, setCustomCategory] = useState<string>('')
 
+  // Meat inquiry state
+  const [containsMeat, setContainsMeat] = useState<boolean | null>(null)
+
   const [answers, setAnswers] = useState<Record<string, string>>({})
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState('')
@@ -49,30 +60,79 @@ export default function Assessment() {
   const [aiAnalysis, setAiAnalysis] = useState<AIAnalysis | null>(null)
 
   const getSteps = (): Step[] => {
-    if (assessmentMode === 'upload') {
-      return ['mode', 'category', 'upload', 'labeling', 'facility', 'safety', 'review']
+    const steps: Step[] = ['mode', 'category']
+
+    // Add meat inquiry step if needed
+    if (selectedSubCategory && needsMeatInquiry(selectedSubCategory)) {
+      steps.push('meatInquiry')
     }
-    return ['mode', 'category', 'labeling', 'facility', 'safety', 'review']
+
+    // Add upload step if in upload mode
+    if (assessmentMode === 'upload') {
+      steps.push('upload')
+    }
+
+    // Base question sections
+    steps.push('labeling', 'facility', 'safety')
+
+    // Add USDA section if meat product
+    if (selectedSubCategory && (requiresUSDA(selectedSubCategory) || containsMeat === true)) {
+      steps.push('usda')
+    }
+
+    // Add cold chain section if refrigerated/frozen
+    if (selectedMainCategory && selectedSubCategory && requiresColdChain(selectedMainCategory.id, selectedSubCategory)) {
+      steps.push('coldChain')
+    }
+
+    // Always add shelf life section
+    steps.push('shelfLife')
+
+    steps.push('review')
+    return steps
   }
 
   const steps = getSteps()
   const currentStepIndex = steps.indexOf(step)
 
   const getStepLabels = (): string[] => {
-    const base = [
+    const labels: string[] = [
       t('assessmentMode.title'),
       t('assessment.selectCategory')
     ]
-    if (assessmentMode === 'upload') {
-      base.push(t('assessment.uploadImage'))
+
+    // Add meat inquiry label if needed
+    if (selectedSubCategory && needsMeatInquiry(selectedSubCategory)) {
+      labels.push(t('assessment.meatInquiry.title'))
     }
-    base.push(
+
+    // Add upload label if in upload mode
+    if (assessmentMode === 'upload') {
+      labels.push(t('assessment.uploadImage'))
+    }
+
+    // Base sections
+    labels.push(
       t('assessment.sections.labeling'),
       t('assessment.sections.facility'),
-      t('assessment.sections.safety'),
-      t('common.save')
+      t('assessment.sections.safety')
     )
-    return base
+
+    // Add USDA label if meat product
+    if (selectedSubCategory && (requiresUSDA(selectedSubCategory) || containsMeat === true)) {
+      labels.push(t('assessment.sections.usda'))
+    }
+
+    // Add cold chain label if refrigerated/frozen
+    if (selectedMainCategory && selectedSubCategory && requiresColdChain(selectedMainCategory.id, selectedSubCategory)) {
+      labels.push(t('assessment.sections.coldChain'))
+    }
+
+    // Always add shelf life
+    labels.push(t('assessment.sections.shelfLife'))
+
+    labels.push(t('common.save'))
+    return labels
   }
 
   const handleAnswerChange = (questionId: string, value: string) => {
@@ -127,6 +187,14 @@ export default function Assessment() {
     return ''
   }
 
+  // Get the section for current step
+  const getSectionForStep = (currentStep: Step) => {
+    if (currentStep === 'usda') return usdaSection
+    if (currentStep === 'coldChain') return coldChainSection
+    if (currentStep === 'shelfLife') return shelfLifeSection
+    return baseSections.find(s => s.id === currentStep)
+  }
+
   const canProceed = () => {
     if (step === 'mode') return assessmentMode !== null
     if (step === 'category') {
@@ -137,10 +205,11 @@ export default function Assessment() {
       // For other categories, need both main and sub selected
       return selectedMainCategory !== null && selectedSubCategory !== ''
     }
+    if (step === 'meatInquiry') return containsMeat !== null
     if (step === 'upload') return selectedImage !== null
     if (step === 'review') return true
 
-    const section = sections.find(s => s.id === step)
+    const section = getSectionForStep(step)
     if (!section) return false
 
     return section.questions.every(q => answers[q.id])
@@ -165,7 +234,12 @@ export default function Assessment() {
     setError('')
 
     const productCategory = getProductCategory()
-    const score = calculateScore(answers)
+    const activeSections = getAllSections(
+      selectedMainCategory?.id || '',
+      selectedSubCategory,
+      containsMeat
+    )
+    const score = calculateScore(answers, activeSections)
     const status = getOverallStatus(score)
 
     try {
@@ -182,6 +256,8 @@ export default function Assessment() {
           answers,
           score,
           status,
+          containsMeat,
+          mainCategory: selectedMainCategory?.id || '',
           createdAt: new Date().toISOString()
         }))
         navigate(`/results/${tempId}?temp=true`)
@@ -196,12 +272,19 @@ export default function Assessment() {
     setSelectedMainCategory(category)
     setSelectedSubCategory('')
     setCustomCategory('')
+    setContainsMeat(null) // Reset meat inquiry when changing category
   }
 
   const handleBackToMainCategory = () => {
     setSelectedMainCategory(null)
     setSelectedSubCategory('')
     setCustomCategory('')
+    setContainsMeat(null) // Reset meat inquiry
+  }
+
+  const handleSubCategorySelect = (subCategoryId: string) => {
+    setSelectedSubCategory(subCategoryId)
+    setContainsMeat(null) // Reset meat inquiry when changing subcategory
   }
 
   const renderModeSelection = () => (
@@ -288,7 +371,7 @@ export default function Assessment() {
           {selectedMainCategory.subcategories.map(sub => (
             <button
               key={sub.id}
-              onClick={() => setSelectedSubCategory(sub.id)}
+              onClick={() => handleSubCategorySelect(sub.id)}
               className={`p-4 rounded-lg border-2 text-center transition-colors ${
                 selectedSubCategory === sub.id
                   ? 'border-primary-500 bg-primary-50 text-primary-700'
@@ -332,8 +415,50 @@ export default function Assessment() {
     </div>
   )
 
-  const renderQuestions = (sectionId: 'labeling' | 'facility' | 'safety') => {
-    const section = sections.find(s => s.id === sectionId)
+  const renderMeatInquiry = () => (
+    <div>
+      <h2 className="text-xl font-semibold text-gray-900 mb-2">
+        {t('assessment.meatInquiry.title')}
+      </h2>
+      <p className="text-gray-600 mb-6">
+        {t('assessment.meatInquiry.description')}
+      </p>
+
+      <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
+        <p className="text-yellow-800 text-sm">
+          {t('assessment.meatInquiry.warning')}
+        </p>
+      </div>
+
+      <div className="space-y-4">
+        <button
+          onClick={() => setContainsMeat(true)}
+          className={`w-full p-4 rounded-lg border-2 text-left transition-colors ${
+            containsMeat === true
+              ? 'border-primary-500 bg-primary-50'
+              : 'border-gray-200 hover:border-gray-300'
+          }`}
+        >
+          <span className="font-medium">{t('assessment.meatInquiry.yes')}</span>
+          <p className="text-sm text-gray-500 mt-1">{t('assessment.meatInquiry.yesDesc')}</p>
+        </button>
+        <button
+          onClick={() => setContainsMeat(false)}
+          className={`w-full p-4 rounded-lg border-2 text-left transition-colors ${
+            containsMeat === false
+              ? 'border-primary-500 bg-primary-50'
+              : 'border-gray-200 hover:border-gray-300'
+          }`}
+        >
+          <span className="font-medium">{t('assessment.meatInquiry.no')}</span>
+          <p className="text-sm text-gray-500 mt-1">{t('assessment.meatInquiry.noDesc')}</p>
+        </button>
+      </div>
+    </div>
+  )
+
+  const renderQuestions = (sectionId: SectionId) => {
+    const section = getSectionForStep(sectionId as Step)
     if (!section) return null
 
     if (sectionId === 'labeling' && aiAnalysis && assessmentMode === 'upload') {
@@ -377,7 +502,13 @@ export default function Assessment() {
   }
 
   const renderReview = () => {
-    const score = calculateScore(answers)
+    // Get dynamic sections based on product type
+    const activeSections = getAllSections(
+      selectedMainCategory?.id || '',
+      selectedSubCategory,
+      containsMeat
+    )
+    const score = calculateScore(answers, activeSections)
     const status = getOverallStatus(score)
 
     // Get display text for category
@@ -391,6 +522,10 @@ export default function Assessment() {
       }
       return ''
     }
+
+    // Check if product requires special regulatory compliance
+    const showUsdaWarning = requiresUSDA(selectedSubCategory) || containsMeat === true
+    const showColdChainWarning = selectedMainCategory && requiresColdChain(selectedMainCategory.id, selectedSubCategory)
 
     return (
       <div>
@@ -423,6 +558,24 @@ export default function Assessment() {
             </span>
           </div>
         </div>
+
+        {/* Special regulatory warnings */}
+        {showUsdaWarning && (
+          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
+            <p className="text-yellow-800 font-medium flex items-center">
+              <span className="mr-2">⚠️</span>
+              {t('results.usdaWarning')}
+            </p>
+          </div>
+        )}
+        {showColdChainWarning && (
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+            <p className="text-blue-800 font-medium flex items-center">
+              <span className="mr-2">❄️</span>
+              {t('results.coldChainWarning')}
+            </p>
+          </div>
+        )}
 
         {!user && (
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
@@ -506,10 +659,14 @@ export default function Assessment() {
         <div className="mb-8">
           {step === 'mode' && renderModeSelection()}
           {step === 'category' && renderCategorySelection()}
+          {step === 'meatInquiry' && renderMeatInquiry()}
           {step === 'upload' && renderImageUpload()}
           {step === 'labeling' && renderQuestions('labeling')}
           {step === 'facility' && renderQuestions('facility')}
           {step === 'safety' && renderQuestions('safety')}
+          {step === 'usda' && renderQuestions('usda')}
+          {step === 'coldChain' && renderQuestions('coldChain')}
+          {step === 'shelfLife' && renderQuestions('shelfLife')}
           {step === 'review' && renderReview()}
         </div>
 

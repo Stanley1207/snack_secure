@@ -64,7 +64,19 @@
     "sections": {
       "labeling": "Labeling Requirements",
       "facility": "Facility Registration",
-      "safety": "Food Safety Standards"
+      "safety": "Food Safety Standards",
+      "usda": "USDA Meat Compliance",
+      "coldChain": "Cold Chain Management",
+      "shelfLife": "Shelf Life Management"
+    },
+    "meatInquiry": {
+      "title": "Product Ingredient Confirmation",
+      "description": "This product category may contain meat ingredients. Products with meat require additional USDA approval.",
+      "warning": "Meat products require USDA approval (in addition to FDA), which may require additional certification processes.",
+      "yes": "Yes, this product contains meat",
+      "yesDesc": "Requires USDA approval and additional meat import certification",
+      "no": "No, this product does not contain meat",
+      "noDesc": "Only FDA compliance required"
     },
     "progress": "Progress",
     "next": "Next",
@@ -252,6 +264,48 @@
         "question": "Is hazard analysis documentation available?",
         "help": "Documentation of identified hazards and preventive controls"
       }
+    },
+    "usda": {
+      "facilityInspection": {
+        "question": "Is your facility USDA inspection certified?",
+        "help": "Meat products require production in USDA-certified facilities"
+      },
+      "meatLabeling": {
+        "question": "Are meat ingredients labeled per USDA requirements?",
+        "help": "Meat product labels must comply with USDA FSIS labeling requirements"
+      },
+      "importPermit": {
+        "question": "Do you have a USDA meat import permit?",
+        "help": "Imported meat products require FSIS-approved import permits"
+      }
+    },
+    "coldChain": {
+      "temperatureMonitoring": {
+        "question": "Do you have a temperature monitoring and recording system?",
+        "help": "Temperature records are required from production through transportation"
+      },
+      "transport": {
+        "question": "Does transportation comply with cold chain requirements?",
+        "help": "Must use refrigerated/frozen transport and maintain consistent temperature"
+      },
+      "storageLabel": {
+        "question": "Does the packaging indicate storage temperature requirements?",
+        "help": "Must clearly indicate recommended storage temperature range"
+      }
+    },
+    "shelfLife": {
+      "expirationDate": {
+        "question": "Are production date and shelf life clearly labeled?",
+        "help": "Must display production date and best-by date on packaging"
+      },
+      "storageConditions": {
+        "question": "Are storage condition instructions labeled?",
+        "help": "Such as 'Store at room temperature', 'Refrigerate after opening'"
+      },
+      "batchTraceability": {
+        "question": "Do you have a batch traceability system?",
+        "help": "Must be able to trace production information for each batch"
+      }
     }
   },
   "answers": {
@@ -271,10 +325,36 @@
     "status": "Status",
     "recommendations": "Recommendations",
     "noRecommendations": "No recommendations - all requirements met!",
+    "itemsNeedAttention": "{{count}} items need attention. Review the recommendations above for each failed item.",
     "saveResults": "Save Results",
     "printReport": "Print Report",
     "newAssessment": "Start New Assessment",
-    "viewDetails": "View Details"
+    "viewDetails": "View Details",
+    "usdaWarning": "This product contains meat and requires USDA (US Department of Agriculture) approval in addition to FDA",
+    "coldChainWarning": "This product requires cold chain transportation and storage. Ensure temperature control throughout",
+    "missingItems": {
+      "title": "Missing Compliance Items",
+      "description": "The following {{count}} compliance requirements are not met and must be completed before export:"
+    },
+    "aiSummary": {
+      "title": "AI Compliance Improvement Suggestions",
+      "generate": "Generate AI Summary",
+      "regenerate": "Regenerate",
+      "priorityActions": "Priority Actions",
+      "detailedSteps": "Detailed Improvement Steps",
+      "estimatedEffort": "Estimated Effort",
+      "loading": "Generating...",
+      "analyzing": "AI is analyzing your assessment results...",
+      "error": "Failed to generate AI summary, please try again"
+    },
+    "cta": {
+      "failedTitle": "Need Help Completing Compliance?",
+      "failedDescription": "Our professional team can help you complete all compliance requirements",
+      "failedButton": "Finish the process with us",
+      "passedTitle": "Congratulations! Your Product is Ready",
+      "passedDescription": "Start selling your product in the US market now",
+      "passedButton": "Upload your product to our website"
+    }
   },
   "recommendations": {
     "nutritionFacts": "Update your Nutrition Facts panel to meet FDA format requirements. Consider using FDA's labeling guide.",
@@ -289,7 +369,16 @@
     "haccp": "Develop a HACCP plan identifying critical control points for your production process.",
     "fsma": "Review FSMA Preventive Controls requirements and implement necessary controls.",
     "gmp": "Implement Good Manufacturing Practices per 21 CFR Part 117.",
-    "hazardAnalysis": "Document all identified hazards and corresponding preventive controls."
+    "hazardAnalysis": "Document all identified hazards and corresponding preventive controls.",
+    "usdaFacilityInspection": "Contact USDA FSIS to apply for facility inspection certification. This is required for meat product exports.",
+    "usdaMeatLabeling": "Ensure meat ingredients are correctly labeled per USDA FSIS requirements, including product name, ingredients, and net weight.",
+    "usdaImportPermit": "Apply for a meat import permit through USDA FSIS. A veterinary certificate from the country of origin is required.",
+    "temperatureMonitoring": "Establish a temperature monitoring and recording system to ensure full traceability from production to transport.",
+    "coldChainTransport": "Use cold chain compliant transportation equipment and sign temperature guarantee agreements with logistics providers.",
+    "storageTemperatureLabel": "Clearly indicate storage temperature requirements on packaging, e.g., 'Keep refrigerated at 2-8°C'.",
+    "expirationDate": "Label production date and shelf life prominently on packaging in a format suitable for the US market.",
+    "storageConditions": "Add storage condition instructions to the label, such as 'Refrigerate after opening and consume within X days'.",
+    "batchTraceability": "Establish a batch traceability system to ensure each batch can be traced to raw material sources and production records."
   },
   "dashboard": {
     "title": "My Dashboard",

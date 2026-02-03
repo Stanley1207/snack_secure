@@ -81,6 +81,21 @@ export interface AIAnalysisResponse {
   error?: string
 }
 
+export interface AISummaryResponse {
+  success: boolean
+  summary?: {
+    overview: string
+    priorityActions: Array<{
+      item: string
+      priority: 'high' | 'medium' | 'low'
+      action: string
+    }>
+    detailedSteps: string[]
+    estimatedEffort: string
+  }
+  error?: string
+}
+
 export const aiService = {
   analyzePackaging: async (image: File, language: string = 'en'): Promise<AIAnalysisResponse> => {
     const formData = new FormData()
@@ -92,6 +107,17 @@ export const aiService = {
         'Content-Type': 'multipart/form-data'
       }
     })
+    return response.data
+  },
+
+  summarizeResults: async (data: {
+    productCategory: string
+    failedItems: string[]
+    answers: Record<string, string>
+    language: string
+    score: number
+  }): Promise<AISummaryResponse> => {
+    const response = await api.post('/ai/summarize-results', data)
     return response.data
   }
 }
