@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { useAuth } from '../context/AuthContext'
 import { assessmentService, Assessment } from '../services/api'
 import { Button } from '../components/FormElements'
+import { parseStoredCategory, foodCategories } from '../data/questions'
 
 export default function Dashboard() {
   const { t } = useTranslation()
@@ -13,6 +14,39 @@ export default function Dashboard() {
   const [assessments, setAssessments] = useState<Assessment[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+
+  // Helper function to display category
+  const getCategoryDisplay = (storedCategory: string): string => {
+    // Try to parse as new format first
+    const parsed = parseStoredCategory(storedCategory)
+
+    // If it's a custom category
+    if (parsed.customCategory) {
+      return parsed.customCategory
+    }
+
+    // If it's a main:sub format
+    if (parsed.subCategory) {
+      const mainCat = foodCategories.find(c => c.id === parsed.mainCategory)
+      if (mainCat) {
+        const subCat = mainCat.subcategories.find(s => s.id === parsed.subCategory)
+        if (subCat) {
+          return `${t(mainCat.labelKey)} > ${t(subCat.labelKey)}`
+        }
+      }
+    }
+
+    // Fall back to old format (legacy support)
+    const legacyKey = `assessment.categories.${storedCategory}`
+    const translated = t(legacyKey)
+    // If translation exists and is different from the key, use it
+    if (translated !== legacyKey) {
+      return translated
+    }
+
+    // Last resort: return the raw value
+    return storedCategory
+  }
 
   useEffect(() => {
     if (!user) {
@@ -117,7 +151,7 @@ export default function Dashboard() {
                       {formatDate(assessment.createdAt)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {t(`assessment.categories.${assessment.productCategory}`)}
+                      {getCategoryDisplay(assessment.productCategory)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                       {assessment.score}%

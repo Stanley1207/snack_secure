@@ -8,7 +8,9 @@ import {
   sections,
   calculateScore,
   getOverallStatus,
-  getSectionStatus
+  getSectionStatus,
+  parseStoredCategory,
+  foodCategories
 } from '../data/questions'
 
 export default function Results() {
@@ -20,6 +22,39 @@ export default function Results() {
   const [assessment, setAssessment] = useState<Assessment | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+
+  // Helper function to display category
+  const getCategoryDisplay = (storedCategory: string): string => {
+    // Try to parse as new format first
+    const parsed = parseStoredCategory(storedCategory)
+
+    // If it's a custom category
+    if (parsed.customCategory) {
+      return parsed.customCategory
+    }
+
+    // If it's a main:sub format
+    if (parsed.subCategory) {
+      const mainCat = foodCategories.find(c => c.id === parsed.mainCategory)
+      if (mainCat) {
+        const subCat = mainCat.subcategories.find(s => s.id === parsed.subCategory)
+        if (subCat) {
+          return `${t(mainCat.labelKey)} > ${t(subCat.labelKey)}`
+        }
+      }
+    }
+
+    // Fall back to old format (legacy support)
+    const legacyKey = `assessment.categories.${storedCategory}`
+    const translated = t(legacyKey)
+    // If translation exists and is different from the key, use it
+    if (translated !== legacyKey) {
+      return translated
+    }
+
+    // Last resort: return the raw value
+    return storedCategory
+  }
 
   useEffect(() => {
     const fetchAssessment = async () => {
@@ -93,7 +128,7 @@ export default function Results() {
           <div className="bg-gray-50 rounded-lg p-6">
             <p className="text-sm text-gray-500 mb-1">{t('results.category')}</p>
             <p className="text-lg font-medium">
-              {t(`assessment.categories.${assessment.productCategory}`)}
+              {getCategoryDisplay(assessment.productCategory)}
             </p>
           </div>
 

@@ -10,10 +10,12 @@ import ImageUpload from '../components/ImageUpload'
 import AIAnalysisResults from '../components/AIAnalysisResults'
 import {
   sections,
-  productCategories,
+  foodCategories,
   answerOptions,
   calculateScore,
-  getOverallStatus
+  getOverallStatus,
+  formatCategoryForStorage,
+  MainCategory
 } from '../data/questions'
 
 type Step = 'mode' | 'category' | 'upload' | 'labeling' | 'facility' | 'safety' | 'review'
@@ -26,13 +28,18 @@ interface AIAnalysis {
 }
 
 export default function Assessment() {
-  const { t, i18n } = useTranslation()
+  const { t } = useTranslation()
   const { user } = useAuth()
   const navigate = useNavigate()
 
   const [step, setStep] = useState<Step>('mode')
   const [assessmentMode, setAssessmentMode] = useState<AssessmentMode | null>(null)
-  const [productCategory, setProductCategory] = useState('')
+
+  // New category state for two-level selection
+  const [selectedMainCategory, setSelectedMainCategory] = useState<MainCategory | null>(null)
+  const [selectedSubCategory, setSelectedSubCategory] = useState<string>('')
+  const [customCategory, setCustomCategory] = useState<string>('')
+
   const [answers, setAnswers] = useState<Record<string, string>>({})
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState('')
@@ -90,7 +97,7 @@ export default function Assessment() {
     setError('')
 
     try {
-      const response = await aiService.analyzePackaging(selectedImage, i18n.language)
+      const response = await aiService.analyzePackaging(selectedImage)
 
       if (response.success && response.analysis) {
         setAiAnalysis(response.analysis)
@@ -109,9 +116,27 @@ export default function Assessment() {
     }
   }
 
+  // Get the product category string for storage
+  const getProductCategory = (): string => {
+    if (selectedMainCategory?.id === 'other' && customCategory) {
+      return formatCategoryForStorage('other', undefined, customCategory)
+    }
+    if (selectedMainCategory && selectedSubCategory) {
+      return formatCategoryForStorage(selectedMainCategory.id, selectedSubCategory)
+    }
+    return ''
+  }
+
   const canProceed = () => {
     if (step === 'mode') return assessmentMode !== null
-    if (step === 'category') return productCategory !== ''
+    if (step === 'category') {
+      // For 'other' category, need custom input
+      if (selectedMainCategory?.id === 'other') {
+        return customCategory.trim() !== ''
+      }
+      // For other categories, need both main and sub selected
+      return selectedMainCategory !== null && selectedSubCategory !== ''
+    }
     if (step === 'upload') return selectedImage !== null
     if (step === 'review') return true
 
@@ -139,6 +164,7 @@ export default function Assessment() {
     setIsSubmitting(true)
     setError('')
 
+    const productCategory = getProductCategory()
     const score = calculateScore(answers)
     const status = getOverallStatus(score)
 
@@ -166,6 +192,18 @@ export default function Assessment() {
     }
   }
 
+  const handleMainCategorySelect = (category: MainCategory) => {
+    setSelectedMainCategory(category)
+    setSelectedSubCategory('')
+    setCustomCategory('')
+  }
+
+  const handleBackToMainCategory = () => {
+    setSelectedMainCategory(null)
+    setSelectedSubCategory('')
+    setCustomCategory('')
+  }
+
   const renderModeSelection = () => (
     <AssessmentModeSelector
       selectedMode={assessmentMode}
@@ -173,28 +211,97 @@ export default function Assessment() {
     />
   )
 
-  const renderCategorySelection = () => (
-    <div>
-      <h2 className="text-xl font-semibold text-gray-900 mb-6">
-        {t('assessment.selectCategory')}
-      </h2>
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {productCategories.map(category => (
+  const renderCategorySelection = () => {
+    // If no main category selected, show main categories
+    if (!selectedMainCategory) {
+      return (
+        <div>
+          <h2 className="text-xl font-semibold text-gray-900 mb-6">
+            {t('assessment.selectMainCategory')}
+          </h2>
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+            {foodCategories.map(category => (
+              <button
+                key={category.id}
+                onClick={() => handleMainCategorySelect(category)}
+                className="p-4 rounded-lg border-2 text-center transition-colors border-gray-200 hover:border-primary-300 hover:bg-primary-50"
+              >
+                {t(category.labelKey)}
+              </button>
+            ))}
+          </div>
+        </div>
+      )
+    }
+
+    // If "other" category selected, show custom input
+    if (selectedMainCategory.allowCustom) {
+      return (
+        <div>
+          <div className="flex items-center mb-6">
+            <button
+              onClick={handleBackToMainCategory}
+              className="text-primary-600 hover:text-primary-700 flex items-center mr-4"
+            >
+              <svg className="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+              {t('assessment.backToMainCategory')}
+            </button>
+          </div>
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">
+            {t(selectedMainCategory.labelKey)}
+          </h2>
+          <p className="text-gray-600 mb-6">{t('assessment.customInput')}</p>
+          <input
+            type="text"
+            value={customCategory}
+            onChange={(e) => setCustomCategory(e.target.value)}
+            placeholder={t('assessment.customInputPlaceholder')}
+            className="w-full p-4 border-2 border-gray-200 rounded-lg focus:border-primary-500 focus:ring-2 focus:ring-primary-200 outline-none transition-colors"
+          />
+        </div>
+      )
+    }
+
+    // Show subcategories
+    return (
+      <div>
+        <div className="flex items-center mb-6">
           <button
-            key={category}
-            onClick={() => setProductCategory(category)}
-            className={`p-4 rounded-lg border-2 text-center transition-colors ${
-              productCategory === category
-                ? 'border-primary-500 bg-primary-50 text-primary-700'
-                : 'border-gray-200 hover:border-gray-300'
-            }`}
+            onClick={handleBackToMainCategory}
+            className="text-primary-600 hover:text-primary-700 flex items-center mr-4"
           >
-            {t(`assessment.categories.${category}`)}
+            <svg className="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+            {t('assessment.backToMainCategory')}
           </button>
-        ))}
+          <span className="px-3 py-1 bg-primary-100 text-primary-700 rounded-full text-sm font-medium">
+            {t(selectedMainCategory.labelKey)}
+          </span>
+        </div>
+        <h2 className="text-xl font-semibold text-gray-900 mb-6">
+          {t('assessment.selectSubCategory')}
+        </h2>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {selectedMainCategory.subcategories.map(sub => (
+            <button
+              key={sub.id}
+              onClick={() => setSelectedSubCategory(sub.id)}
+              className={`p-4 rounded-lg border-2 text-center transition-colors ${
+                selectedSubCategory === sub.id
+                  ? 'border-primary-500 bg-primary-50 text-primary-700'
+                  : 'border-gray-200 hover:border-gray-300'
+              }`}
+            >
+              {t(sub.labelKey)}
+            </button>
+          ))}
+        </div>
       </div>
-    </div>
-  )
+    )
+  }
 
   const renderImageUpload = () => (
     <div>
@@ -273,6 +380,18 @@ export default function Assessment() {
     const score = calculateScore(answers)
     const status = getOverallStatus(score)
 
+    // Get display text for category
+    const getCategoryDisplayText = () => {
+      if (selectedMainCategory?.id === 'other' && customCategory) {
+        return customCategory
+      }
+      if (selectedMainCategory && selectedSubCategory) {
+        const sub = selectedMainCategory.subcategories.find(s => s.id === selectedSubCategory)
+        return `${t(selectedMainCategory.labelKey)} > ${sub ? t(sub.labelKey) : selectedSubCategory}`
+      }
+      return ''
+    }
+
     return (
       <div>
         <h2 className="text-xl font-semibold text-gray-900 mb-6">
@@ -280,6 +399,10 @@ export default function Assessment() {
         </h2>
 
         <div className="bg-gray-50 rounded-lg p-6 mb-6">
+          <div className="flex items-center justify-between mb-4">
+            <span className="font-medium">{t('results.category')}:</span>
+            <span className="text-gray-700">{getCategoryDisplayText()}</span>
+          </div>
           <div className="flex items-center justify-between mb-4">
             <span className="font-medium">{t('results.score')}:</span>
             <span className={`text-2xl font-bold ${
